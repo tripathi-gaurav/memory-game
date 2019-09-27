@@ -91,13 +91,16 @@ class MemoryGame extends React.Component {
         //squares[i][j] = "";
       }
     }
+    let _tiles = M * N;
+
     this.state = {
       squares: _squares,
       _squares: _squares,
       visible: visible,
       value_of_unhuid_item: null,
       position_of_unhid_item: [],
-      step_number: 0
+      number_of_clicks: 0,
+      tiles_left: _tiles
     };
   }
 
@@ -110,6 +113,8 @@ class MemoryGame extends React.Component {
     const value_of_unhuid_item = this.state.value_of_unhuid_item;
     const position_of_unhid_item = this.state.position_of_unhid_item;
     const squares = this.state.squares;
+    const number_of_clicks = this.state.number_of_clicks;
+    const tiles_left = this.state.tiles_left;
 
     console.log(squares);
 
@@ -122,14 +127,18 @@ class MemoryGame extends React.Component {
     visible[row][col] = true;
     console.log("=" + value_of_unhuid_item);
     if (value_of_unhuid_item) {
+      //second item revealed
       if (squares[row][col] === value_of_unhuid_item) {
+        //second item IS equal to first item, valid pair
         unhid_item = null;
         new_position_of_unhid_item = [];
         this.setState({
           visible: visible,
           squares: squares,
           value_of_unhuid_item: unhid_item,
-          position_of_unhid_item: new_position_of_unhid_item
+          position_of_unhid_item: new_position_of_unhid_item,
+          number_of_clicks: number_of_clicks + 1,
+          tiles_left: tiles_left - 2
         });
       } else {
         //second item revealed did not match.
@@ -137,7 +146,8 @@ class MemoryGame extends React.Component {
         new_position_of_unhid_item = position_of_unhid_item.concat([row, col]);
         this.setState({
           visible: visible,
-          position_of_unhid_item: new_position_of_unhid_item
+          position_of_unhid_item: new_position_of_unhid_item,
+          number_of_clicks: number_of_clicks + 1
         });
         setTimeout(() => {
           const _visible = this.state.visible;
@@ -175,25 +185,40 @@ class MemoryGame extends React.Component {
         visible: visible,
         squares: squares,
         value_of_unhuid_item: unhid_item,
-        position_of_unhid_item: new_position_of_unhid_item
+        position_of_unhid_item: new_position_of_unhid_item,
+        number_of_clicks: number_of_clicks + 1
       });
     }
   }
 
   render() {
     console.log("render()");
-    let status = "Game in progress";
+    const tiles_left = this.state.tiles_left;
+    const status_number_of_clicks =
+      "Attempts made so far: " + this.state.number_of_clicks;
+    let status = tiles_left == 0 ? "Game completed" : "Game in progress";
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={this.state._squares}
-            visible={this.state.visible}
-            onClick={i => this.handleClick(i)}
-          />
-        </div>
+      <div>
         <div className="game-info">
-          <div>{status}</div>
+          <div>
+            {" "}
+            <h3>{status}</h3>
+          </div>
+          <div>
+            {" "}
+            <h4>{status_number_of_clicks}</h4>
+          </div>
+        </div>
+        <div className="game">
+          <div class="clear"></div>
+          <br></br>
+          <div className="game-board">
+            <Board
+              squares={this.state._squares}
+              visible={this.state.visible}
+              onClick={i => this.handleClick(i)}
+            />
+          </div>
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 /* This file is for your main application css. */
 
-@import "~milligram/dist/milligram";
+/* @import "~milligram/dist/milligram"; */
 
 .column > p {
   padding-top: 10ex;
@@ -44,6 +44,10 @@ ul {
   width: 34px;
 }
 
+.show {
+  text-indent: 0px;
+}
+
 .square:focus {
   outline: none;
 }
@@ -60,4 +64,13 @@ ul {
 .game-info {
   margin-left: 20px;
 }
+
 /* end of borrowed code */
+
+.game-info:after {
+  clear: both;
+}
+
+.clear {
+  clear: both;
+}
