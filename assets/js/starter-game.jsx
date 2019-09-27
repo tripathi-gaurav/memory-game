@@ -63,6 +63,7 @@ class MemoryGame extends React.Component {
     }
     for (let i = 0; i < 8; i++) {
       let start_memory = 97;
+      let poplated_indices = new Set();
       for (let j = 0; j < 8; j++) {
         my_squares[i][j] = String.fromCharCode(start_memory++);
       }
