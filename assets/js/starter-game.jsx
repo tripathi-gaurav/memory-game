@@ -17,15 +17,17 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-  renderSquare(i) {
-    console.log("creating: " + i);
-    console.log("this.props: " + this.props);
-    console.log("this.props.squares: " + this.props.squares);
-    console.log("this.props.squares: " + this.props.squares[i][i]);
+  renderSquare(i, row, col) {
+    // console.log("creating: " + i);
+    // console.log("this.props: " + this.props);
+    // console.log("this.props.squares: " + this.props.squares);
+    let unique_key = row + "_" + col;
+    //console.log("this.props.squares[i][j]: " + this.props.squares[i][i]);
     return (
       <Square
-        value={this.props.squares[i][i]}
-        key={i}
+        // value={this.props.squares[i][i]}
+        value={i}
+        key={unique_key}
         onClick={() => this.props.onClick(i)}
       />
     );
@@ -33,16 +35,18 @@ class Board extends React.Component {
   render() {
     let squares = this.props.squares;
 
-    let row = _.map(squares, subarray => {
-      let cell = _.map(subarray, (xx, ii) => {
-        console.log(xx);
-        console.log(ii);
-        return this.renderSquare(ii);
-      });
-      return <div className="board-row">{cell}</div>;
-    });
-    console.log("row= " + row);
-    return <div>{row}</div>;
+    let row_objects = [];
+    let cells = [];
+    row_objects.push(cells);
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        let div_tag_open = '<div className="board-row">';
+        let div_tag_end = "</div>";
+        cells.push(this.renderSquare(squares[i][j], i, j));
+      }
+      row_objects.push(<div className="board-row">{cells.splice(0, 4)}</div>);
+    }
+    return <div>{row_objects}</div>;
   }
 }
 
@@ -55,20 +59,27 @@ class MemoryGame extends React.Component {
   constructor(props) {
     super(props);
 
-    let my_squares = Array(8).fill(Array(8));
-    const set1 = new Set();
-    let first_character = 97;
-    for (let i = 0; i < 8; i++) {
-      set1.add(String.fromCharCode(first_character++));
-    }
-    for (let i = 0; i < 8; i++) {
-      let start_memory = 97;
-      let poplated_indices = new Set();
-      for (let j = 0; j < 8; j++) {
-        my_squares[i][j] = String.fromCharCode(start_memory++);
+    let my_squares = [[]];
+    for (let i = 0; i < 4; i++) {
+      my_squares[i] = new Array();
+      for (let j = 0; j < 4; j++) {
+        my_squares[i].push("");
       }
     }
-    console.log(my_squares);
+
+    let characters = [];
+    let first_character = 97;
+    for (let i = 0; i < 8; i++) {
+      characters.push(String.fromCharCode(first_character));
+      characters.push(String.fromCharCode(first_character++));
+    }
+    for (let i = 0; i < my_squares.length; i++) {
+      for (let j = 0; j < my_squares[0].length; j++) {
+        let my_char = characters.splice(getRandomInt(characters.length), 1);
+        my_squares[i][j] = my_char[0];
+      }
+    }
+
     this.state = {
       squares: my_squares,
       stepNumber: 0
