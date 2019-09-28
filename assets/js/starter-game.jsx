@@ -16,24 +16,35 @@ function Square(props) {
   );
 }
 
+function ResetButton(props) {
+  return (
+    <button
+      onClick={() => {
+        props.onClick();
+      }}
+    >
+      {"Reset"}
+    </button>
+  );
+}
+
 class Board extends React.Component {
   renderSquare(i, row, col, visible) {
-    // console.log("creating: " + i);
-    // console.log("this.props: " + this.props);
-    // console.log("this.props.squares: " + this.props.squares);
     let unique_key = row + "_" + col;
     let isVisible = visible[row][col];
 
-    //console.log("this.props.squares[i][j]: " + this.props.squares[i][i]);
     return (
       <Square
-        // value={this.props.squares[i][i]}
         visible={isVisible}
         value={i}
         key={unique_key}
         onClick={() => this.props.onClick(unique_key)}
       />
     );
+  }
+
+  renderResetButton() {
+    return <ResetButton onClick={() => this.props.onClick("reset")} />;
   }
   render() {
     let squares = this.props.squares;
@@ -49,7 +60,14 @@ class Board extends React.Component {
         <div className="board-row">{cells.splice(0, squares[i].length)}</div>
       );
     }
-    return <div>{row_objects}</div>;
+    let game_grid = <div>{row_objects}</div>;
+    let reset_button = this.renderResetButton();
+    return (
+      <div>
+        {game_grid}
+        {reset_button}
+      </div>
+    );
   }
 }
 
@@ -61,7 +79,10 @@ function getRandomInt(max) {
 class MemoryGame extends React.Component {
   constructor(props) {
     super(props);
+    this.init();
+  }
 
+  init() {
     let _squares = [[]];
     let squares = [[]];
     let visible = [[]];
@@ -88,7 +109,6 @@ class MemoryGame extends React.Component {
       for (let j = 0; j < _squares[i].length; j++) {
         let my_char = characters.splice(getRandomInt(characters.length), 1);
         _squares[i][j] = my_char[0];
-        //squares[i][j] = "";
       }
     }
     let _tiles = M * N;
@@ -100,31 +120,70 @@ class MemoryGame extends React.Component {
       value_of_unhuid_item: null,
       position_of_unhid_item: [],
       number_of_clicks: 0,
-      tiles_left: _tiles
+      tiles_left: _tiles,
+      disabled_for_delay: false
     };
+  }
+
+  reset() {
+    let _squares = this.state.squares.slice();
+    let _visible = this.state.visible.slice();
+    let M = _squares.length;
+    let N = _squares[0].length;
+    const _tiles_left = M * N;
+
+    let characters = [];
+    let first_character = 97;
+    for (let i = 0; i < M + N; i++) {
+      characters.push(String.fromCharCode(first_character));
+      characters.push(String.fromCharCode(first_character++));
+    }
+    for (let i = 0; i < _squares.length; i++) {
+      for (let j = 0; j < _squares[i].length; j++) {
+        let my_char = characters.splice(getRandomInt(characters.length), 1);
+        _squares[i][j] = my_char[0];
+        _visible[i][j] = false;
+      }
+    }
+
+    this.setState({
+      visible: _visible,
+      squares: _squares,
+      value_of_unhuid_item: null,
+      position_of_unhid_item: [],
+      number_of_clicks: 0,
+      disabled_for_delay: false,
+      tiles_left: _tiles_left
+    });
   }
 
   handleClick(key) {
     console.log(key);
     let row;
     let col;
+    if (key === "reset") {
+      this.reset();
+      return;
+    }
     [row, col] = key.split("_");
     const _visible = this.state.visible;
     const value_of_unhuid_item = this.state.value_of_unhuid_item;
     const position_of_unhid_item = this.state.position_of_unhid_item;
     const squares = this.state.squares;
-    const number_of_clicks = this.state.number_of_clicks;
-    const tiles_left = this.state.tiles_left;
+    const _number_of_clicks = this.state.number_of_clicks;
+    let _tiles_left = this.state.tiles_left;
+    let _disabled_for_delay = this.state.disabled_for_delay;
 
     console.log(squares);
 
-    if (_visible[row][col]) {
+    if (_disabled_for_delay || _visible[row][col]) {
+      //ignore click when clicked during delay period or clicked on a revealed tile
       return;
     }
     let unhid_item;
     let new_position_of_unhid_item = null;
     let visible = _visible.slice();
-    visible[row][col] = true;
+    visible[row][col] = true; //Clicking on a tile should expose it’s associated letter.
     console.log("=" + value_of_unhuid_item);
     if (value_of_unhuid_item) {
       //second item revealed
@@ -132,30 +191,19 @@ class MemoryGame extends React.Component {
         //second item IS equal to first item, valid pair
         unhid_item = null;
         new_position_of_unhid_item = [];
-        this.setState({
-          visible: visible,
-          squares: squares,
-          value_of_unhuid_item: unhid_item,
-          position_of_unhid_item: new_position_of_unhid_item,
-          number_of_clicks: number_of_clicks + 1,
-          tiles_left: tiles_left - 2
-        });
+        _tiles_left = _tiles_left - 2;
       } else {
         //second item revealed did not match.
         //hide after timeout
         new_position_of_unhid_item = position_of_unhid_item.concat([row, col]);
-        this.setState({
-          visible: visible,
-          position_of_unhid_item: new_position_of_unhid_item,
-          number_of_clicks: number_of_clicks + 1
-        });
+        unhid_item = this.state.unhid_item;
+        _disabled_for_delay = !_disabled_for_delay;
+        //If the two tiles don’t match, the values should be hidden again after a delay
         setTimeout(() => {
           const _visible = this.state.visible;
           const _value_of_unhuid_item = this.state.value_of_unhuid_item;
           const _position_of_unhid_item = this.state.position_of_unhid_item;
-          console.log("ahem 1" + _visible);
-          console.log("ahem 2" + _value_of_unhuid_item);
-          console.log("ahem 3" + _position_of_unhid_item);
+
           let r1 = _position_of_unhid_item[0];
           let c1 = _position_of_unhid_item[1];
           let r2 = _position_of_unhid_item[2];
@@ -167,28 +215,30 @@ class MemoryGame extends React.Component {
           this.setState({
             visible: visible,
             value_of_unhuid_item: null,
-            position_of_unhid_item: []
+            position_of_unhid_item: [],
+            disabled_for_delay: false
           });
         }, 1000);
       }
     } else {
       //first item revealed
       unhid_item = squares[row][col];
-
       new_position_of_unhid_item = [];
       new_position_of_unhid_item.push(row);
       new_position_of_unhid_item.push(col);
-      console.log(new_position_of_unhid_item);
-      console.log(unhid_item);
-
-      this.setState({
-        visible: visible,
-        squares: squares,
-        value_of_unhuid_item: unhid_item,
-        position_of_unhid_item: new_position_of_unhid_item,
-        number_of_clicks: number_of_clicks + 1
-      });
+      //console.log(new_position_of_unhid_item);
+      //console.log(unhid_item);
     }
+
+    this.setState({
+      visible: visible,
+      squares: squares,
+      value_of_unhuid_item: unhid_item,
+      position_of_unhid_item: new_position_of_unhid_item,
+      number_of_clicks: _number_of_clicks + 1,
+      disabled_for_delay: _disabled_for_delay,
+      tiles_left: _tiles_left
+    });
   }
 
   render() {
@@ -226,5 +276,6 @@ class MemoryGame extends React.Component {
 }
 
 export default function game_init(root) {
+  //The state of the game should be a single value in the root React component.
   ReactDOM.render(<MemoryGame />, root);
 }
