@@ -8,9 +8,10 @@ echo "Starting app..."
 # Start to run in background from shell.
 #_build/prod/rel/memory/bin/memory start
 
-# Foreground for testing and for systemd
+echo "Stopping old copy of app, if any..."
+
+_build/prod/rel/memory/bin/memory stop || true
+
+echo "Starting app..."
+
 _build/prod/rel/memory/bin/memory start
-
-# TODO: Add a systemd service file
-#       to start your app on system boot.
-

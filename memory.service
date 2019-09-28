@@ -3,14 +3,14 @@ Description=Memory Game
 
 [Service]
 Type=simple
-User=memory
-Group=memory
+User=gollum
+Group=gollum
 Restart=on-failure
 Environment=MIX_ENV=prod "PORT=4791"
 Environment=LANG=en_US.UTF-8
 
-WorkingDirectory=/home/memory/memory
-ExecStart=bash /home/memory/memory/start.sh
+WorkingDirectory=/home/gollum/memory
+ExecStart=bash /home/gollum/memory/start.sh
 
 [Install]
 WantedBy=multi-user.target
