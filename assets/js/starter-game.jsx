@@ -28,6 +28,26 @@ function ResetButton(props) {
   );
 }
 
+class ReactButton extends React.Component {
+  constructor(props) {
+    super(props);
+    console.log(props);
+  }
+
+  render() {
+    return (
+      <button
+        key={"Reset"}
+        onClick={() => {
+          this.props.onClick();
+        }}
+      >
+        {"Reset"}
+      </button>
+    );
+  }
+}
+
 class Board extends React.Component {
   renderSquare(i, row, col, visible) {
     let unique_key = row + "_" + col;
@@ -60,14 +80,7 @@ class Board extends React.Component {
         <div className="board-row">{cells.splice(0, squares[i].length)}</div>
       );
     }
-    let game_grid = <div>{row_objects}</div>;
-    let reset_button = this.renderResetButton();
-    return (
-      <div>
-        {game_grid}
-        {reset_button}
-      </div>
-    );
+    return <div>{row_objects}</div>;
   }
 }
 
@@ -125,7 +138,7 @@ class MemoryGame extends React.Component {
     };
   }
 
-  reset() {
+  reset(ev) {
     let _squares = this.state.squares.slice();
     let _visible = this.state.visible.slice();
     let M = _squares.length;
@@ -158,13 +171,10 @@ class MemoryGame extends React.Component {
   }
 
   handleClick(key) {
-    console.log(key);
+    //console.log(key);
     let row;
     let col;
-    if (key === "reset") {
-      this.reset();
-      return;
-    }
+
     [row, col] = key.split("_");
     const _visible = this.state.visible;
     const value_of_unhuid_item = this.state.value_of_unhuid_item;
@@ -174,7 +184,7 @@ class MemoryGame extends React.Component {
     let _tiles_left = this.state.tiles_left;
     let _disabled_for_delay = this.state.disabled_for_delay;
 
-    console.log(squares);
+    //console.log(squares);
 
     if (_disabled_for_delay || _visible[row][col]) {
       //ignore click when clicked during delay period or clicked on a revealed tile
@@ -184,7 +194,7 @@ class MemoryGame extends React.Component {
     let new_position_of_unhid_item = null;
     let visible = _visible.slice();
     visible[row][col] = true; //Clicking on a tile should expose it’s associated letter.
-    console.log("=" + value_of_unhuid_item);
+    //console.log("=" + value_of_unhuid_item);
     if (value_of_unhuid_item) {
       //second item revealed
       if (squares[row][col] === value_of_unhuid_item) {
@@ -247,6 +257,7 @@ class MemoryGame extends React.Component {
     const status_number_of_clicks =
       "Attempts made so far: " + this.state.number_of_clicks;
     let status = tiles_left == 0 ? "Game completed" : "Game in progress";
+    const _reset_key = "reset";
     return (
       <div>
         <div className="game-info">
@@ -260,7 +271,7 @@ class MemoryGame extends React.Component {
           </div>
         </div>
         <div className="game">
-          <div class="clear"></div>
+          <div className="clear"></div>
           <br></br>
           <div className="game-board">
             <Board
@@ -268,6 +279,7 @@ class MemoryGame extends React.Component {
               visible={this.state.visible}
               onClick={i => this.handleClick(i)}
             />
+            <ReactButton onClick={i => this.reset(i)} />
           </div>
         </div>
       </div>
