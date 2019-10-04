@@ -3,7 +3,8 @@ defmodule MemoryWeb.UserSocket do
 
   ## Channels
   # channel "room:*", MemoryWeb.RoomChannel
-
+ channel "games:*", MemoryWeb.GamesChannel
+ 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
@@ -15,6 +16,7 @@ defmodule MemoryWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
+  
   def connect(_params, socket, _connect_info) do
     {:ok, socket}
   end
