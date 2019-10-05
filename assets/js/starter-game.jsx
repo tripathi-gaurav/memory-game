@@ -4,7 +4,6 @@ import "../css/app.css";
 import _ from "lodash";
 
 function Square(props) {
-  console.log("proooppaa");
   return (
     <button
       className="square"
@@ -52,8 +51,8 @@ class ReactButton extends React.Component {
 class Board extends React.Component {
   renderSquare(i, row, col, visible) {
     let unique_key = row + "_" + col;
-    console.log(visible[row][col] + " " + i);
-    console.log("unique_key = " + unique_key);
+    //console.log(visible[row][col] + " " + i);
+    //console.log("unique_key = " + unique_key);
 
     const isVisible = visible[row][col];
     console.log(isVisible);
@@ -231,6 +230,12 @@ class MemoryGame extends React.Component {
     let col;
 
     [row, col] = key.split("_");
+    console.log(row + col);
+    this.channel
+      .push("guess", { row: row, col: col })
+      .receive("ok", this.onUpdate.bind(this));
+
+    /*
     const _visible = this.state.visible;
     const value_of_unhuid_item = this.state.value_of_unhuid_item;
     const position_of_unhid_item = this.state.position_of_unhid_item;
@@ -304,6 +309,7 @@ class MemoryGame extends React.Component {
       disabled_for_delay: _disabled_for_delay,
       tiles_left: _tiles_left
     });
+    */
   }
 
   render() {

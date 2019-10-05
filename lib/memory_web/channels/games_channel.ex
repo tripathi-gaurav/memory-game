@@ -21,6 +21,16 @@ alias MemoryWeb.Game
     end
   end
 
+  def handle_in("guess", %{"col" => col, "row" => row }, socket) do
+    IO.inspect socket
+    name = socket.assigns[:name]
+    game = Game.guess(socket.assigns[:games], row, col)
+    socket = assign(socket, :games, game)
+    #BackupAgent.put(name, game)
+    IO.inspect game
+    {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
+  end
+
   def handle_in("roll", _payload, socket) do
     resp = %{"roll" => :rand.uniform(6)}
     {:reply, {:roll, resp}, socket}
