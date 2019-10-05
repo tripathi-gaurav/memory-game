@@ -1,5 +1,9 @@
-<h1>Hangman</h1>
-<p>game</p>
+<h1>Memory Game</h1>
+<p>Joined game <%= @name %></p>
 <div id="root">
   React component loading...
 </div>
+
+<script>
+ window.game_name = "games:<%= @name %>";
+</script>

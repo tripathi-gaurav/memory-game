@@ -4,6 +4,7 @@ import "../css/app.css";
 import _ from "lodash";
 
 function Square(props) {
+  console.log("proooppaa");
   return (
     <button
       className="square"
@@ -51,8 +52,11 @@ class ReactButton extends React.Component {
 class Board extends React.Component {
   renderSquare(i, row, col, visible) {
     let unique_key = row + "_" + col;
-    let isVisible = visible[row][col];
+    console.log(visible[row][col] + " " + i);
+    console.log("unique_key = " + unique_key);
 
+    const isVisible = visible[row][col];
+    console.log(isVisible);
     return (
       <Square
         visible={isVisible}
@@ -71,6 +75,10 @@ class Board extends React.Component {
     let visible = this.props.visible;
     let row_objects = [];
     let cells = [];
+    console.log("============ ");
+    console.log(visible);
+
+    console.log("============ ");
     //row_objects.push(cells);
     for (let i = 0; i < squares.length; i++) {
       for (let j = 0; j < squares[i].length; j++) {
@@ -80,6 +88,7 @@ class Board extends React.Component {
         <div className="board-row">{cells.splice(0, squares[i].length)}</div>
       );
     }
+
     return <div>{row_objects}</div>;
   }
 }
@@ -92,9 +101,55 @@ function getRandomInt(max) {
 class MemoryGame extends React.Component {
   constructor(props) {
     super(props);
-    this.init();
+    console.log(props);
+
+    this.channel = props.channel;
+    this.init2();
+    //borrowed from in class
+    console.log("joining");
+    this.channel
+      .join()
+      .receive("ok", this.onJoin.bind(this))
+      .receive("error", resp => {
+        console.log("Unable to join", resp);
+      });
+    console.log("joined");
   }
 
+  onJoin({ game }) {
+    console.log(" setting state ");
+    this.setState(game.state);
+    console.log("gammeeee");
+    console.log(game.state);
+  }
+
+  onUpdate({ game }) {
+    this.setState(game.state);
+  }
+
+  init2() {
+    let _squares = [[]];
+    let squares = [[]];
+    let visible = [
+      [false, false, false, false],
+      [false, false, false, false],
+      [false, false, false, false],
+      [false, false, false, false]
+    ];
+    let M = 4;
+    let N = 4;
+
+    this.state = {
+      squares: _squares,
+      _squares: _squares,
+      visible: visible,
+      value_of_unhuid_item: null,
+      position_of_unhid_item: [],
+      number_of_clicks: 0,
+      tiles_left: 16,
+      disabled_for_delay: false
+    };
+  }
   init() {
     let _squares = [[]];
     let squares = [[]];
@@ -287,7 +342,7 @@ class MemoryGame extends React.Component {
   }
 }
 
-export default function game_init(root) {
+export default function game_init(root, channel) {
   //The state of the game should be a single value in the root React component.
-  ReactDOM.render(<MemoryGame />, root);
+  ReactDOM.render(<MemoryGame channel={channel} />, root);
 }

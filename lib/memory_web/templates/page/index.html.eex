@@ -1,6 +1,6 @@
 <h1>Join A Game</h1>
 <%= form_for @conn, "/games/", fn f -> %>
-<p>Enter number: <%= text_input f, :x %></p>
+<p>Enter number: <%= text_input f, :name %></p>
 <p><%= submit "Join game" %></p>
 <% end %>
 <p><a href="/games/demo">Join asdasdasd  game</a></p>
