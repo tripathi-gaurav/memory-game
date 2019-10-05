@@ -22,7 +22,7 @@ alias MemoryWeb.Game
   end
 
   def handle_in("guess", %{"col" => col, "row" => row }, socket) do
-    IO.inspect socket
+    #IO.inspect socket
     name = socket.assigns[:name]
     game = Game.guess(socket.assigns[:games], row, col)
     socket = assign(socket, :games, game)
@@ -31,9 +31,20 @@ alias MemoryWeb.Game
     {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
   end
 
-  def handle_in("roll", _payload, socket) do
-    resp = %{"roll" => :rand.uniform(6)}
-    {:reply, {:roll, resp}, socket}
+  def handle_in("hideTiles", %{"row1" => r1, "col1" => c1, "row2" => r2, "col2" => c2 }, socket) do
+    name = socket.assigns[:name]
+    game = Game.hideTiles(socket.assigns[:games], r1, c1, r2, c2)
+    socket = assign(socket, :games, game)
+    #BackupAgent.put(name, game)
+    IO.inspect game
+    {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
+  end
+
+  def handle_in("hideTiles", _, socket) do 
+     name = socket.assigns[:name]
+     game = socket.assigns[:games]
+     socket = assign(socket, :games, game)
+     {:reply, {:ok, %{ "game" => Game.client_view(game) }}, socket}
   end
 
   # Add authorization logic here as required.

@@ -31,7 +31,6 @@ function ResetButton(props) {
 class ReactButton extends React.Component {
   constructor(props) {
     super(props);
-    console.log(props);
   }
 
   render() {
@@ -55,7 +54,7 @@ class Board extends React.Component {
     //console.log("unique_key = " + unique_key);
 
     const isVisible = visible[row][col];
-    console.log(isVisible);
+    //console.log(isVisible);
     return (
       <Square
         visible={isVisible}
@@ -74,10 +73,10 @@ class Board extends React.Component {
     let visible = this.props.visible;
     let row_objects = [];
     let cells = [];
-    console.log("============ ");
-    console.log(visible);
+    // console.log("============ ");
+    // console.log(visible);
 
-    console.log("============ ");
+    // console.log("============ ");
     //row_objects.push(cells);
     for (let i = 0; i < squares.length; i++) {
       for (let j = 0; j < squares[i].length; j++) {
@@ -116,10 +115,8 @@ class MemoryGame extends React.Component {
   }
 
   onJoin({ game }) {
-    console.log(" setting state ");
     this.setState(game.state);
-    console.log("gammeeee");
-    console.log(game.state);
+    //console.log(game.state);
   }
 
   onUpdate({ game }) {
@@ -230,10 +227,64 @@ class MemoryGame extends React.Component {
     let col;
 
     [row, col] = key.split("_");
+    let _visible = this.state.visible;
+    let value_of_unhuid_item = this.state.value_of_unhuid_item;
+    let squares = this.state.squares;
+    let _disabled_for_delay = this.state.disabled_for_delay;
     console.log(row + col);
+    if (_disabled_for_delay || _visible[row][col]) {
+      return;
+    }
+
     this.channel
       .push("guess", { row: row, col: col })
       .receive("ok", this.onUpdate.bind(this));
+
+    _visible = this.state.visible;
+    value_of_unhuid_item = this.state.value_of_unhuid_item;
+    squares = this.state.squares;
+    _disabled_for_delay = this.state.disabled_for_delay;
+    const position_of_unhid_item = this.state.position_of_unhid_item;
+
+    console.log(_visible);
+    console.log(value_of_unhuid_item);
+    console.log(squares);
+
+    if (value_of_unhuid_item) {
+      //second item revealed
+      if (squares[row][col] !== value_of_unhuid_item) {
+        //hide after timeout
+        console.log("adding the timeout");
+
+        let unhid_item = this.state.unhid_item;
+        _disabled_for_delay = !_disabled_for_delay;
+        //If the two tiles don’t match, the values should be hidden again after a delay
+        setTimeout(() => {
+          const _visible = this.state.visible;
+          const _value_of_unhuid_item = this.state.value_of_unhuid_item;
+          const _position_of_unhid_item = this.state.position_of_unhid_item;
+
+          let r1 = _position_of_unhid_item[0];
+          let c1 = _position_of_unhid_item[1];
+          let r2 = _position_of_unhid_item[2];
+          let c2 = _position_of_unhid_item[3];
+
+          this.channel
+            .push("hideTiles", { row1: r1, col1: c1, row2: r2, col2: c2 })
+            .receive("ok", this.onUpdate.bind(this));
+          // let visible = _visible.slice();
+          // visible[r1][c1] = false;
+          // visible[r2][c2] = false;
+
+          // this.setState({
+          //   visible: visible,
+          //   value_of_unhuid_item: null,
+          //   position_of_unhid_item: [],
+          //   disabled_for_delay: false
+          // });
+        }, 1000);
+      }
+    }
 
     /*
     const _visible = this.state.visible;
