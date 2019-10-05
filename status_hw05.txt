@@ -7,16 +7,17 @@ Gaurav Tripathi
 
 
 2. What's the URL of the github repo with your work for this HW?
-https://github.com/tripathi-gaurav/memory.git
+https://github.com/tripathi-gaurav/memory-game.git
 
 
 
 3. What's the URL that you deployed to?
-memory1.webassembly.site
+memory2.webassembly.site
 
 
 
-4. Is your game functionality complete? If not, what's missing?
+4. Is your game functionality complete, with the appropriate logic implemented
+as server-side elixir code? If not, what's missing?
 Yes
 
 
