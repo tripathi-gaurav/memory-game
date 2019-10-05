@@ -146,79 +146,9 @@ class MemoryGame extends React.Component {
       disabled_for_delay: false
     };
   }
-  init() {
-    let _squares = [[]];
-    let squares = [[]];
-    let visible = [[]];
-    let M = 4;
-    let N = 4;
-    for (let i = 0; i < M; i++) {
-      _squares[i] = new Array();
-      squares[i] = new Array();
-      visible[i] = new Array();
-      for (let j = 0; j < N; j++) {
-        _squares[i].push("");
-        squares[i].push(" ");
-        visible[i].push(false);
-      }
-    }
-
-    let characters = [];
-    let first_character = 97;
-    for (let i = 0; i < M + N; i++) {
-      characters.push(String.fromCharCode(first_character));
-      characters.push(String.fromCharCode(first_character++));
-    }
-    for (let i = 0; i < _squares.length; i++) {
-      for (let j = 0; j < _squares[i].length; j++) {
-        let my_char = characters.splice(getRandomInt(characters.length), 1);
-        _squares[i][j] = my_char[0];
-      }
-    }
-    let _tiles = M * N;
-
-    this.state = {
-      squares: _squares,
-      _squares: _squares,
-      visible: visible,
-      value_of_unhuid_item: null,
-      position_of_unhid_item: [],
-      number_of_clicks: 0,
-      tiles_left: _tiles,
-      disabled_for_delay: false
-    };
-  }
 
   reset(ev) {
-    let _squares = this.state.squares.slice();
-    let _visible = this.state.visible.slice();
-    let M = _squares.length;
-    let N = _squares[0].length;
-    const _tiles_left = M * N;
-
-    let characters = [];
-    let first_character = 97;
-    for (let i = 0; i < M + N; i++) {
-      characters.push(String.fromCharCode(first_character));
-      characters.push(String.fromCharCode(first_character++));
-    }
-    for (let i = 0; i < _squares.length; i++) {
-      for (let j = 0; j < _squares[i].length; j++) {
-        let my_char = characters.splice(getRandomInt(characters.length), 1);
-        _squares[i][j] = my_char[0];
-        _visible[i][j] = false;
-      }
-    }
-
-    this.setState({
-      visible: _visible,
-      squares: _squares,
-      value_of_unhuid_item: null,
-      position_of_unhid_item: [],
-      number_of_clicks: 0,
-      disabled_for_delay: false,
-      tiles_left: _tiles_left
-    });
+    this.channel.push("reset").receive("ok", this.onUpdate.bind(this));
   }
 
   handleClick(key) {
@@ -272,95 +202,9 @@ class MemoryGame extends React.Component {
           this.channel
             .push("hideTiles", { row1: r1, col1: c1, row2: r2, col2: c2 })
             .receive("ok", this.onUpdate.bind(this));
-          // let visible = _visible.slice();
-          // visible[r1][c1] = false;
-          // visible[r2][c2] = false;
-
-          // this.setState({
-          //   visible: visible,
-          //   value_of_unhuid_item: null,
-          //   position_of_unhid_item: [],
-          //   disabled_for_delay: false
-          // });
         }, 1000);
       }
     }
-
-    /*
-    const _visible = this.state.visible;
-    const value_of_unhuid_item = this.state.value_of_unhuid_item;
-    const position_of_unhid_item = this.state.position_of_unhid_item;
-    const squares = this.state.squares;
-    const _number_of_clicks = this.state.number_of_clicks;
-    let _tiles_left = this.state.tiles_left;
-    let _disabled_for_delay = this.state.disabled_for_delay;
-
-    //console.log(squares);
-
-    if (_disabled_for_delay || _visible[row][col]) {
-      //ignore click when clicked during delay period or clicked on a revealed tile
-      return;
-    }
-    let unhid_item;
-    let new_position_of_unhid_item = null;
-    let visible = _visible.slice();
-    visible[row][col] = true; //Clicking on a tile should expose it’s associated letter.
-    //console.log("=" + value_of_unhuid_item);
-    if (value_of_unhuid_item) {
-      //second item revealed
-      if (squares[row][col] === value_of_unhuid_item) {
-        //second item IS equal to first item, valid pair
-        unhid_item = null;
-        new_position_of_unhid_item = [];
-        _tiles_left = _tiles_left - 2;
-      } else {
-        //second item revealed did not match.
-        //hide after timeout
-        new_position_of_unhid_item = position_of_unhid_item.concat([row, col]);
-        unhid_item = this.state.unhid_item;
-        _disabled_for_delay = !_disabled_for_delay;
-        //If the two tiles don’t match, the values should be hidden again after a delay
-        setTimeout(() => {
-          const _visible = this.state.visible;
-          const _value_of_unhuid_item = this.state.value_of_unhuid_item;
-          const _position_of_unhid_item = this.state.position_of_unhid_item;
-
-          let r1 = _position_of_unhid_item[0];
-          let c1 = _position_of_unhid_item[1];
-          let r2 = _position_of_unhid_item[2];
-          let c2 = _position_of_unhid_item[3];
-          let visible = _visible.slice();
-          visible[r1][c1] = false;
-          visible[r2][c2] = false;
-
-          this.setState({
-            visible: visible,
-            value_of_unhuid_item: null,
-            position_of_unhid_item: [],
-            disabled_for_delay: false
-          });
-        }, 1000);
-      }
-    } else {
-      //first item revealed
-      unhid_item = squares[row][col];
-      new_position_of_unhid_item = [];
-      new_position_of_unhid_item.push(row);
-      new_position_of_unhid_item.push(col);
-      //console.log(new_position_of_unhid_item);
-      //console.log(unhid_item);
-    }
-
-    this.setState({
-      visible: visible,
-      squares: squares,
-      value_of_unhuid_item: unhid_item,
-      position_of_unhid_item: new_position_of_unhid_item,
-      number_of_clicks: _number_of_clicks + 1,
-      disabled_for_delay: _disabled_for_delay,
-      tiles_left: _tiles_left
-    });
-    */
   }
 
   render() {
